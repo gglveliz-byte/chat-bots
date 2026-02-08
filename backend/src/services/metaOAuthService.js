@@ -66,16 +66,14 @@ async function generateAuthUrl({ clientId, serviceCode, redirectUri }) {
     messenger: [
       'pages_messaging',
       'pages_show_list',
-      'pages_manage_metadata',
-      'business_management'  // Para acceder a páginas en portafolios comerciales
+      'pages_manage_metadata'
     ],
     instagram: [
       'instagram_basic',
       'instagram_manage_messages',
       'pages_messaging',
       'pages_show_list',
-      'pages_manage_metadata',
-      'business_management'  // Para acceder a páginas en portafolios comerciales
+      'pages_manage_metadata'
     ]
   };
 
