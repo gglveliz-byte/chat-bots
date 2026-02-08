@@ -735,19 +735,13 @@ const verifyWebhook = async (req, res) => {
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    // Obtener verify token desde DB o env
-    let verifyToken = process.env.META_VERIFY_TOKEN;
-    try {
-      const configResult = await query(`
-        SELECT value::jsonb->>'meta_verify_token' as verify_token
-        FROM system_config WHERE key = 'meta_api_config'
-      `);
-      if (configResult.rows[0]?.verify_token) {
-        verifyToken = configResult.rows[0].verify_token;
-      }
-    } catch { /* usar env */ }
+    // Obtener verify token desde env
+    const verifyToken = process.env.META_VERIFY_TOKEN || process.env.WEBHOOK_VERIFY_TOKEN;
 
-    if (!verifyToken) verifyToken = 'chatbot_saas_verify_token';
+    if (!verifyToken) {
+      console.error('❌ META_VERIFY_TOKEN no configurado en variables de entorno');
+      return res.sendStatus(500);
+    }
 
     if (mode === 'subscribe' && token === verifyToken) {
       console.log('✅ Webhook verificado correctamente');
