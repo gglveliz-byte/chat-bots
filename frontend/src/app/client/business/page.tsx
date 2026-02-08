@@ -80,7 +80,7 @@ export default function BusinessPage() {
       setFormData({
         name: business.name || '',
         industry: business.industry || '',
-        description: business.description || business.business_description || '',
+        description: business.description || '',
         country: business.country || '',
         address: business.address || '',
         website: business.website || '',
