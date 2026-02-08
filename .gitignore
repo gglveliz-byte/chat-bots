@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env.production
+.env.*.local
+backend/.env
+frontend/.env.local
+frontend/.env.production
+
+# Uploads (user data)
+backend/uploads/
+uploads/
+
+# Build outputs
+frontend/.next/
+frontend/out/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Claude Code (local AI context)
+.claude/
+
+# Misc
+nul
+*.tmp
+widget/
