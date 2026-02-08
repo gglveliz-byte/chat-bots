@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  MessageSquare, Brain, Clock, Shield, Zap,
+  MessageSquare, Brain, Clock, Shield, Zap, Globe,
   BarChart3, Settings, FileText, Users, Sparkles, Bot
 } from 'lucide-react';
 import { FaWhatsapp, FaFacebookMessenger, FaInstagram, FaTelegram } from 'react-icons/fa';

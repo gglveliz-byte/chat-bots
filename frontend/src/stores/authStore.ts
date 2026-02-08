@@ -7,6 +7,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string;
   type: 'admin' | 'client';
   role?: string;
   email_verified?: boolean;
