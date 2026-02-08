@@ -56,7 +56,7 @@ async function getAppCredentials() {
 async function generateAuthUrl({ clientId, serviceCode, redirectUri }) {
   const { appId } = await getAppCredentials();
 
-  // Scopes según el servicio (MÍNIMOS - no requieren revisión de Meta)
+  // Scopes según el servicio
   const scopesByService = {
     whatsapp: [
       'whatsapp_business_management',
@@ -64,12 +64,16 @@ async function generateAuthUrl({ clientId, serviceCode, redirectUri }) {
       'business_management'
     ],
     messenger: [
-      'pages_messaging'  // Permiso mínimo para Messenger - NO requiere revisión
+      'pages_messaging',
+      'pages_show_list',  // Necesario para obtener lista de páginas
+      'pages_manage_metadata'  // Para configurar webhooks
     ],
     instagram: [
       'instagram_basic',
       'instagram_manage_messages',
-      'pages_messaging'  // Permisos mínimos para Instagram - NO requieren revisión
+      'pages_messaging',
+      'pages_show_list',  // Necesario para obtener lista de páginas
+      'pages_manage_metadata'  // Para configurar webhooks
     ]
   };
 
