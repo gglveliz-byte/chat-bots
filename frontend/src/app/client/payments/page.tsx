@@ -803,7 +803,7 @@ export default function PaymentsPage() {
                           {getStatusBadge(payment.status)}
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-primary-400 font-bold">${parseFloat(payment.amount).toFixed(2)} {payment.currency}</span>
+                          <span className="text-primary-400 font-bold">${Number(payment.amount).toFixed(2)} {payment.currency}</span>
                           <span className="text-dark-400 text-xs">
                             {payment.method === 'paypal' && 'PayPal'}
                             {payment.method === 'card' && 'Tarjeta'}
