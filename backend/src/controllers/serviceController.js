@@ -724,6 +724,177 @@ const getTelegramStatus = async (req, res) => {
   }
 };
 
+// ==================== DIAGNOSTIC ====================
+
+const getDiagnostic = async (req, res) => {
+  try {
+    const { code } = req.params;
+    const clientId = req.user.id;
+
+    // Obtener servicio del cliente
+    const serviceResult = await query(`
+      SELECT cs.id, cs.status, cs.config, cs.token_expires_at, cs.token_status,
+             s.code as service_code, s.name as service_name
+      FROM client_services cs
+      JOIN services s ON cs.service_id = s.id
+      WHERE cs.client_id = $1 AND s.code = $2
+    `, [clientId, code]);
+
+    if (serviceResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Servicio no encontrado'
+      });
+    }
+
+    const service = serviceResult.rows[0];
+    const config = service.config || {};
+    const creds = config.platform_credentials || {};
+
+    // Obtener estadísticas de conversaciones
+    const convsResult = await query(`
+      SELECT COUNT(*) as total,
+             COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+             COUNT(CASE WHEN is_bot_active = true THEN 1 END) as bot_active
+      FROM conversations WHERE client_service_id = $1
+    `, [service.id]);
+
+    const stats = convsResult.rows[0];
+
+    // Información específica por plataforma
+    let platformInfo = {};
+
+    if (code === 'instagram') {
+      platformInfo = {
+        page_id: creds.page_id || null,
+        page_name: creds.page_name || null,
+        instagram_account_id: creds.instagram_account_id || null,
+        instagram_username: creds.instagram_username || null,
+        webhook_subscribed: creds.webhook_subscribed || false,
+
+        // Diagnóstico
+        has_instagram_connected: !!creds.instagram_account_id,
+        has_page_token: !!creds.page_access_token,
+        oauth_completed: config.oauth_connected === true
+      };
+    } else if (code === 'whatsapp') {
+      platformInfo = {
+        waba_id: creds.waba_id || null,
+        waba_name: creds.waba_name || null,
+        phone_number_id: creds.phone_number_id || null,
+        display_phone: creds.display_phone || null,
+        verified_name: creds.verified_name || null,
+        webhook_subscribed: creds.webhook_subscribed || false,
+
+        // Diagnóstico
+        has_phone_configured: !!creds.phone_number_id,
+        has_whatsapp_token: !!creds.whatsapp_access_token,
+        oauth_completed: config.oauth_connected === true
+      };
+    } else if (code === 'messenger') {
+      platformInfo = {
+        page_id: creds.page_id || null,
+        page_name: creds.page_name || null,
+        webhook_subscribed: creds.webhook_subscribed || false,
+
+        // Diagnóstico
+        has_page_token: !!creds.page_access_token,
+        oauth_completed: config.oauth_connected === true
+      };
+    }
+
+    res.json({
+      success: true,
+      data: {
+        service: {
+          code: service.service_code,
+          name: service.service_name,
+          status: service.status,
+          token_status: service.token_status,
+          token_expires_at: service.token_expires_at,
+          oauth_connected: config.oauth_connected || false,
+          oauth_connected_at: config.oauth_connected_at || null
+        },
+        platform: platformInfo,
+        stats: {
+          total_conversations: parseInt(stats.total),
+          active_conversations: parseInt(stats.active),
+          bot_active_conversations: parseInt(stats.bot_active)
+        },
+        recommendations: generateRecommendations(code, config, creds, stats)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error en getDiagnostic:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    });
+  }
+};
+
+function generateRecommendations(code, config, creds, stats) {
+  const recommendations = [];
+
+  if (!config.oauth_connected) {
+    recommendations.push({
+      type: 'error',
+      message: `No has conectado tu cuenta de ${code}. Ve a "Vincular Cuentas" para conectar.`
+    });
+  }
+
+  if (code === 'instagram') {
+    if (!creds.instagram_account_id) {
+      recommendations.push({
+        type: 'error',
+        message: 'No se detectó cuenta de Instagram vinculada. Asegúrate de que tu Página de Facebook tenga una cuenta de Instagram Business conectada en Meta Business Suite.'
+      });
+    }
+
+    if (!creds.webhook_subscribed) {
+      recommendations.push({
+        type: 'warning',
+        message: 'Los webhooks no están suscritos. Ve a Meta for Developers → Webhooks → Instagram y suscríbete al campo "messages".'
+      });
+    }
+
+    if (creds.instagram_account_id && parseInt(stats.total) === 0) {
+      recommendations.push({
+        type: 'info',
+        message: 'Todo está configurado correctamente. Envía un mensaje a tu cuenta de Instagram para probar.'
+      });
+    }
+  }
+
+  if (code === 'whatsapp') {
+    if (!creds.phone_number_id) {
+      recommendations.push({
+        type: 'error',
+        message: 'No se detectó número de WhatsApp. Completa el flujo OAuth para configurar tu WhatsApp Business.'
+      });
+    }
+  }
+
+  if (code === 'messenger') {
+    if (!creds.page_id) {
+      recommendations.push({
+        type: 'error',
+        message: 'No se detectó Página de Facebook. Completa el flujo OAuth para conectar tu página.'
+      });
+    }
+  }
+
+  if (recommendations.length === 0) {
+    recommendations.push({
+      type: 'success',
+      message: '¡Todo configurado correctamente! Tu bot está listo para recibir mensajes.'
+    });
+  }
+
+  return recommendations;
+}
+
 module.exports = {
   getConversations,
   getConversation,
@@ -733,5 +904,6 @@ module.exports = {
   getBotConfig,
   updateBotConfig,
   getStats,
-  getTelegramStatus
+  getTelegramStatus,
+  getDiagnostic
 };

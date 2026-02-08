@@ -23,4 +23,7 @@ router.get('/:code/stats', serviceController.getStats);
 // Telegram status (deep link)
 router.get('/:code/telegram-status', serviceController.getTelegramStatus);
 
+// Instagram diagnostic
+router.get('/:code/diagnostic', serviceController.getDiagnostic);
+
 module.exports = router;

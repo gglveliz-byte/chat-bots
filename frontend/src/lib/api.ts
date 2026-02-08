@@ -237,6 +237,9 @@ export const serviceApi = {
 
   // Telegram status
   getTelegramStatus: (code: string) => api.get(`/service/${code}/telegram-status`),
+
+  // Diagnostic
+  getDiagnostic: (code: string) => api.get(`/service/${code}/diagnostic`),
 };
 
 // ==================== PUBLIC ====================
