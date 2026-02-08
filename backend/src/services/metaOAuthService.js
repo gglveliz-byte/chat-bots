@@ -65,15 +65,17 @@ async function generateAuthUrl({ clientId, serviceCode, redirectUri }) {
     ],
     messenger: [
       'pages_messaging',
-      'pages_show_list',  // Necesario para obtener lista de páginas
-      'pages_manage_metadata'  // Para configurar webhooks
+      'pages_show_list',
+      'pages_manage_metadata',
+      'business_management'  // Para acceder a páginas en portafolios comerciales
     ],
     instagram: [
       'instagram_basic',
       'instagram_manage_messages',
       'pages_messaging',
-      'pages_show_list',  // Necesario para obtener lista de páginas
-      'pages_manage_metadata'  // Para configurar webhooks
+      'pages_show_list',
+      'pages_manage_metadata',
+      'business_management'  // Para acceder a páginas en portafolios comerciales
     ]
   };
 
