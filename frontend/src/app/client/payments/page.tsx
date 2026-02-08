@@ -848,7 +848,7 @@ export default function PaymentsPage() {
                               </span>
                             </td>
                             <td className="py-4 text-white font-medium">
-                              ${parseFloat(payment.amount).toFixed(2)} {payment.currency}
+                              ${Number(payment.amount).toFixed(2)} {payment.currency}
                             </td>
                             <td className="py-4">
                               {getStatusBadge(payment.status)}
