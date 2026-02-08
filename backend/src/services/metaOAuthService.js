@@ -66,7 +66,8 @@ async function generateAuthUrl({ clientId, serviceCode, redirectUri }) {
     messenger: [
       'pages_messaging',
       'pages_manage_metadata',
-      'pages_read_engagement'
+      'pages_read_engagement',
+      'pages_show_list'
     ],
     instagram: [
       'instagram_basic',
